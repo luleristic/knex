@@ -6,6 +6,7 @@ const cors = require('cors');
 const corsOptions = require('./utils/express/cors');
 
 const errorHandler = require('./middleware/error.middleware');
+const { BASE_PATH } = require('./utils/enum/routes');
 
 const port = process.env.PORT || 5005;
 
@@ -18,6 +19,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use(BASE_PATH.USERS, require('./routes/users.route'));
+app.use(BASE_PATH.TEAMS, require('./routes/teams.route'));
+app.use(BASE_PATH.PROJECTS, require('./routes/projects.route'));
 
 app.use(errorHandler);
 

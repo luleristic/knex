@@ -1,5 +1,5 @@
-const { HttpStatusCode, HttpStatusMessage } = require('../types/express/response');
-const { ApplicationError } = require('../utils/express/error');
+const ApplicationError = require('../utils/express/error');
+const { HttpStatusCode, HttpStatusMessage } = require('../utils/enum/express');
 
 const validateEndpoint = schema => {
 	return (req, _res, next) => {

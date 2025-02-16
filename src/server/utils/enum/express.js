@@ -24,7 +24,10 @@ const HttpStatusMessage = {
 	CONFLICT: 'Conflict',
 	UNPROCESSABLE_ENTITY: 'Unprocessable Entity',
 	INTERNAL_SERVER: 'Internal Server Error',
-	MISSING_FIELDS: 'Missing Fields'
+	MISSING_FIELDS: 'Missing Fields',
+	USER_NOT_FOUND: 'User not found.',
+	INVALID_TOKEN: 'Invalid token.',
+	USER_EXISTS: 'User already exists.'
 };
 
 module.exports = {
