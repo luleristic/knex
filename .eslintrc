@@ -1,0 +1,17 @@
+{
+	"env": {
+		"node": true,
+		"es6": false
+	},
+	"extends": ["standard", "prettier"],
+	"plugins": ["prettier", "import", "node", "promise", "standard"],
+	"parserOptions": {
+		"ecmaVersion": 2019,
+		"sourceType": "script"
+	},
+	"rules": {
+		"prettier/prettier": "error",
+		"import/no-commonjs": "off",
+		"import/no-import-module-exports": "off"
+	}
+}

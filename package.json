@@ -1,0 +1,40 @@
+{
+	"name": "todo-backend-express-knex",
+	"version": "1.0.0",
+	"scripts": {
+		"heroku-postbuild": "cd server && npx knex migrate:latest",
+		"client": "cd client && yarn start",
+		"server": "cd src/server && nodemon server.js",
+		"dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+		"test": "cd server && jest",
+		"test:watch": "cd server && jest --watch",
+		"start": "cd server && node server.js"
+	},
+	"dependencies": {
+		"bcrypt": "^5.1.1",
+		"body-parser": "^1.19.0",
+		"cors": "^2.8.5",
+		"dotenv": "^8.2.0",
+		"express": "^4.16.4",
+		"jest": "^24.9.0",
+		"joi": "^17.13.3",
+		"jsonwebtoken": "^9.0.2",
+		"knex": "^3.1.0",
+		"lodash": "^4.17.15",
+		"nodemon": "^2.0.2",
+		"pg": "^8.13.3",
+		"supertest": "^4.0.2"
+	},
+	"devDependencies": {
+		"concurrently": "^4.0.1",
+		"eslint": "^8.57.1",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-config-standard": "^17.1.0",
+		"eslint-plugin-import": "^2.31.0",
+		"eslint-plugin-node": "^11.1.0",
+		"eslint-plugin-prettier": "^5.2.3",
+		"eslint-plugin-promise": "^6.6.0",
+		"eslint-plugin-standard": "^5.0.0",
+		"prettier": "^3.5.1"
+	}
+}

@@ -1,0 +1,30 @@
+{
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.tabSize": 2,
+	"editor.formatOnPaste": true,
+	"editor.formatOnSave": true,
+	"editor.formatOnType": true,
+	"prettier.useEditorConfig": false,
+	"prettier.useTabs": false,
+	"prettier.configPath": ".prettierrc.json",
+	"javascript.validate.enable": true,
+	"javascript.suggest.autoImports": true,
+	"html.validate.styles": false,
+	"html.format.enable": false,
+	"[html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[markdown]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"files.eol": "\r\n",
+	"files.encoding": "utf8",
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true,
+	"git.mergeEditor": false,
+
+	// Add these lines:
+	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+	"eslint.format.enable": true
+}
