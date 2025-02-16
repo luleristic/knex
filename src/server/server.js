@@ -22,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(BASE_PATH.USERS, require('./routes/users.route'));
 app.use(BASE_PATH.TEAMS, require('./routes/teams.route'));
 app.use(BASE_PATH.PROJECTS, require('./routes/projects.route'));
+app.use(BASE_PATH.TODOS, require('./routes/todos.route'));
 
 app.use(errorHandler);
 

@@ -25,9 +25,17 @@ const PROJECTS_PATH = {
 	DELETE_PROJECT: '/:id'
 };
 
+const TODOS_PATH = {
+	CREATE_TODO: '/',
+	GET_TODOS: '/',
+	UPDATE_TODO: '/:id',
+	DELETE_TODO: '/:id'
+};
+
 module.exports = {
 	BASE_PATH,
 	USERS_PATH,
 	TEAMS_PATH,
-	PROJECTS_PATH
+	PROJECTS_PATH,
+	TODOS_PATH
 };

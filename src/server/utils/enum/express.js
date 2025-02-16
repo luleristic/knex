@@ -27,7 +27,9 @@ const HttpStatusMessage = {
 	MISSING_FIELDS: 'Missing Fields',
 	USER_NOT_FOUND: 'User not found.',
 	INVALID_TOKEN: 'Invalid token.',
-	USER_EXISTS: 'User already exists.'
+	USER_EXISTS: 'User already exists.',
+	PROJECT_NOT_FOUND: 'Project not found.',
+	TODO_NOT_FOUND: 'Todo not found.'
 };
 
 module.exports = {
