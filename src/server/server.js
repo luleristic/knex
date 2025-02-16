@@ -17,6 +17,8 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+// Routes
+
 app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
