@@ -1,0 +1,1031 @@
+openapi: 3.0.3
+info:
+  title: TODO App - Backend Engineer Interview
+  description: |-
+    This is the Task Management API, designed to help teams organize and track their work efficiently.
+    Users can create projects, assign tasks, set statuses (backlog, in progress, completed), and add comments.
+    The API follows RESTful principles and supports role-based access control for better team collaboration.
+  contact:
+    email: luka.ristic2408@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+tags:
+  - name: users
+    description: Everything regarding users
+  - name: teams
+    description: Everything regarding teams
+  - name: projects
+    description: Everything regarding projects
+  - name: todos
+    description: Everything regarding todos
+  - name: comments
+    description: Everything regarding comments
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Login endpoint
+      description: Returns a JWT token for a valid user login.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'user@example.com'
+                password:
+                  type: string
+                  format: password
+                  example: 'SecurePassword123'
+      responses:
+        '200':
+          description: Successful login, returns JWT token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        '400':
+          description: Invalid email or password.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Invalid credentials.'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Something went wrong.'
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Register a new user
+      description: Creates a new user account and returns a success message.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - password2
+              properties:
+                name:
+                  type: string
+                  example: 'John Doe'
+                email:
+                  type: string
+                  format: email
+                  example: 'johndoe@example.com'
+                password:
+                  type: string
+                  format: password
+                  example: 'SecurePassword123'
+                password2:
+                  type: string
+                  format: password
+                  example: 'SecurePassword123'
+      responses:
+        '201':
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User registered successfully.'
+        '400':
+          description: Validation error (e.g., passwords do not match, email already in use).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Passwords do not match.'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Something went wrong.'
+  /users/me:
+    get:
+      tags:
+        - users
+      summary: Get current authenticated user
+      description: Returns the currently authenticated user's details. Requires a valid JWT token in the `Authorization` header.
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: [] # Requires a Bearer Token
+      responses:
+        '200':
+          description: Successfully retrieved user data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: 'John Doe'
+                  email:
+                    type: string
+                    format: email
+                    example: 'johndoe@example.com'
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: '2024-02-14T12:34:56Z'
+        '401':
+          description: Unauthorized (Missing or invalid token).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Unauthorized: Invalid or missing token.'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Something went wrong.'
+    patch:
+      tags:
+        - users
+      summary: Update authenticated user
+      description: Allows the authenticated user to update their `name`, `email`, or `password`. Requires a valid JWT token.
+      operationId: updateUser
+      security:
+        - bearerAuth: ['Bearer token'] # Requires JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'John Doe Updated'
+                email:
+                  type: string
+                  format: email
+                  example: 'newemail@example.com'
+                current_password:
+                  type: string
+                  format: password
+                  description: 'Required to update the password.'
+                  example: 'OldPassword123'
+                new_password:
+                  type: string
+                  format: password
+                  description: 'New password (must be different from current password).'
+                  example: 'NewSecurePassword123'
+      responses:
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User updated successfully.'
+        '400':
+          description: Bad request (e.g., email already in use, incorrect current password).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Current password is incorrect.'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Unauthorized: Invalid token.'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Something went wrong.'
+  /teams:
+    get:
+      tags:
+        - teams
+      summary: Get the authenticated user's team
+      description: Returns the team that the authenticated user belongs to.
+      operationId: getUserTeam
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved the team.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: 'Development Team'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+  /teams/members:
+    get:
+      tags:
+        - teams
+      summary: Get team members
+      description: Returns a paginated list of team members.
+      operationId: getTeamMembers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Successfully retrieved team members.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 10
+                  total_members:
+                    type: integer
+                    example: 25
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 2
+                        name:
+                          type: string
+                          example: 'Jane Doe'
+                        email:
+                          type: string
+                          format: email
+                          example: 'janedoe@example.com'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+    post:
+      tags:
+        - teams
+      summary: Add a team member
+      description: Adds a new user to the authenticated user's team.
+      operationId: addTeamMember
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'newmember@example.com'
+      responses:
+        '201':
+          description: Member added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User added to the team.'
+        '400':
+          description: Bad request (e.g., user does not exist or is already in a team).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User is not allowed to add members).
+        '500':
+          description: Internal server error.
+  /projects:
+    get:
+      tags:
+        - projects
+      summary: Get all projects
+      description: Returns a paginated list of projects belonging to the authenticated user's team.
+      operationId: getProjects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            example: 10
+      responses:
+        '200':
+          description: Successfully retrieved paginated projects.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 10
+                  total_projects:
+                    type: integer
+                    example: 25
+                  projects:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: 'Website Redesign'
+                        team_id:
+                          type: integer
+                          example: 2
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+    post:
+      tags:
+        - projects
+      summary: Create a new project
+      description: Creates a new project under the authenticated user's team.
+      operationId: createProject
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: 'Website Redesign'
+      responses:
+        '201':
+          description: Project created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: 'Website Redesign'
+                  team_id:
+                    type: integer
+                    example: 2
+        '400':
+          description: Bad request (e.g., missing required fields).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+  /projects/{id}:
+    patch:
+      tags:
+        - projects
+      summary: Update a project
+      description: Updates an existing project. Only the project name can be modified.
+      operationId: updateProject
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'Updated Project Name'
+      responses:
+        '200':
+          description: Project updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Project updated successfully.'
+        '400':
+          description: Bad request (e.g., missing required fields).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User does not have permission to update this project).
+        '404':
+          description: Not found (Project does not exist).
+        '500':
+          description: Internal server error.
+    delete:
+      tags:
+        - projects
+      summary: Delete a project
+      description: Deletes a project. Only team admins can delete projects.
+      operationId: deleteProject
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Project deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Project deleted successfully.'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User does not have permission to delete this project).
+        '404':
+          description: Not found (Project does not exist).
+        '500':
+          description: Internal server error.
+  /todos:
+    post:
+      tags:
+        - todos
+      summary: Create a new todo
+      description: Creates a new todo and assigns it to a project.
+      operationId: createTodo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - project_id
+              properties:
+                title:
+                  type: string
+                  example: 'Fix API bug'
+                project_id:
+                  type: integer
+                  example: 1
+                assigned_to:
+                  type: integer
+                  example: 2
+                  description: 'User ID of the person assigned to the task (optional).'
+                status:
+                  type: string
+                  enum: [backlog, in_progress, completed]
+                  example: 'backlog'
+      responses:
+        '201':
+          description: Todo created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: 'Fix API bug'
+                  project_id:
+                    type: integer
+                    example: 1
+                  assigned_to:
+                    type: integer
+                    example: 2
+                  status:
+                    type: string
+                    example: 'backlog'
+        '400':
+          description: Bad request (e.g., missing required fields).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+    get:
+      tags:
+        - todos
+      summary: Get all todos
+      description: Returns a paginated list of todos for the authenticated user's team.
+      operationId: getTodos
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            example: 10
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 2
+          description: 'Filter todos by project ID.'
+        - name: assigned_to
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 3
+          description: 'Filter todos assigned to a specific user.'
+      responses:
+        '200':
+          description: Successfully retrieved todos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 10
+                  total_todos:
+                    type: integer
+                    example: 50
+                  todos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        title:
+                          type: string
+                          example: 'Fix API bug'
+                        project_id:
+                          type: integer
+                          example: 1
+                        assigned_to:
+                          type: integer
+                          example: 2
+                        status:
+                          type: string
+                          example: 'in_progress'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+  /todos/{id}:
+    patch:
+      tags:
+        - todos
+      summary: Update a todo
+      description: Updates a todo's title, status, or assigned user.
+      operationId: updateTodo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 'Update API docs'
+                assigned_to:
+                  type: integer
+                  example: 3
+                  description: 'User ID of the person assigned to the task.'
+                status:
+                  type: string
+                  enum: [backlog, in_progress, completed]
+                  example: 'in_progress'
+      responses:
+        '200':
+          description: Todo updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Todo updated successfully.'
+        '400':
+          description: Bad request (e.g., invalid status value).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User does not have permission to edit this todo).
+        '404':
+          description: Not found (Todo does not exist).
+        '500':
+          description: Internal server error.
+    delete:
+      tags:
+        - todos
+      summary: Delete a todo
+      description: Deletes a todo. Only the creator or an admin can delete it.
+      operationId: deleteTodo
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Todo deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Todo deleted successfully.'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User does not have permission to delete this todo).
+        '404':
+          description: Not found (Todo does not exist).
+        '500':
+          description: Internal server error.
+  /comments:
+    post:
+      tags:
+        - comments
+      summary: Create a new comment
+      description: Adds a comment to a project or a todo.
+      operationId: createComment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  example: 'This task needs to be completed by tomorrow.'
+                todo_id:
+                  type: integer
+                  example: 1
+                  description: 'The ID of the todo this comment belongs to. Required if not commenting on a project.'
+                project_id:
+                  type: integer
+                  example: 2
+                  description: 'The ID of the project this comment belongs to. Required if not commenting on a todo.'
+      responses:
+        '201':
+          description: Comment created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 10
+                  text:
+                    type: string
+                    example: 'This task needs to be completed by tomorrow.'
+                  user_id:
+                    type: integer
+                    example: 3
+                  todo_id:
+                    type: integer
+                    example: 1
+                  project_id:
+                    type: integer
+                    example: null
+        '400':
+          description: Bad request (e.g., missing required fields).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+    get:
+      tags:
+        - comments
+      summary: Get all comments
+      description: Returns a paginated list of comments for a project or todo.
+      operationId: getComments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            example: 10
+        - name: todo_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 1
+          description: 'Filter comments for a specific todo.'
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 2
+          description: 'Filter comments for a specific project.'
+      responses:
+        '200':
+          description: Successfully retrieved comments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 10
+                  total_comments:
+                    type: integer
+                    example: 50
+                  comments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 10
+                        text:
+                          type: string
+                          example: 'This task needs to be completed by tomorrow.'
+                        user_id:
+                          type: integer
+                          example: 3
+                        todo_id:
+                          type: integer
+                          example: 1
+                        project_id:
+                          type: integer
+                          example: null
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '500':
+          description: Internal server error.
+
+  /comments/{id}:
+    patch:
+      tags:
+        - comments
+      summary: Update a comment
+      description: Updates the content of a comment.
+      operationId: updateComment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: 'Updated comment text.'
+      responses:
+        '200':
+          description: Comment updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Comment updated successfully.'
+        '400':
+          description: Bad request (e.g., invalid fields).
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User does not have permission to update this comment).
+        '404':
+          description: Not found (Comment does not exist).
+        '500':
+          description: Internal server error.
+    delete:
+      tags:
+        - comments
+      summary: Delete a comment
+      description: Deletes a comment. Only the comment author or an admin can delete it.
+      operationId: deleteComment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: Comment deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Comment deleted successfully.'
+        '401':
+          description: Unauthorized (Invalid or missing token).
+        '403':
+          description: Forbidden (User does not have permission to delete this comment).
+        '404':
+          description: Not found (Comment does not exist).
+        '500':
+          description: Internal server error.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # Specifies the format as JWT
