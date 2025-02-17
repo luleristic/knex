@@ -4,7 +4,7 @@
 		"es6": false
 	},
 	"extends": ["standard", "prettier"],
-	"plugins": ["prettier", "import", "node", "promise", "standard"],
+	"plugins": ["prettier", "import", "node", "promise", "standard", "jest"],
 	"parserOptions": {
 		"ecmaVersion": 2019,
 		"sourceType": "script"

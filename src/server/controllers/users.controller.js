@@ -33,7 +33,7 @@ const register = async (req, res, next) => {
 					email,
 					password: hashedPassword
 				})
-				.returning('name email');
+				.returning(['id', 'name', 'email']);
 
 			ApiResponse.send(res, HttpStatusCode.CREATED, HttpStatusMessage.CREATED, user);
 		});
