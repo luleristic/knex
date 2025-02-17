@@ -7,7 +7,8 @@ const createTodoSchema = Joi.object({
 		.valid(...Object.values(TODO_STATUS))
 		.optional(),
 	projectId: Joi.number().required(),
-	assignedTo: Joi.number().optional()
+	assignedTo: Joi.number().optional(),
+	teamId: Joi.number().required()
 });
 
 const updateTodoSchema = Joi.object({
@@ -15,13 +16,15 @@ const updateTodoSchema = Joi.object({
 	status: Joi.string()
 		.valid(...Object.values(TODO_STATUS))
 		.optional(),
-	assignedTo: Joi.number().optional()
+	assignedTo: Joi.number().optional(),
+	teamId: Joi.number().required()
 });
 
 const getTodosSchema = Joi.object({
 	projectId: Joi.number().required(),
 	page: Joi.number().optional(),
-	limit: Joi.number().optional()
+	limit: Joi.number().optional(),
+	teamId: Joi.number().required()
 });
 
 module.exports = {

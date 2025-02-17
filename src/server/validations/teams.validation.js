@@ -1,11 +1,19 @@
 const Joi = require('joi');
 
+const createTeamSchema = Joi.object({
+	name: Joi.string().required()
+});
+
+const updateTeamSchema = Joi.object({
+	name: Joi.string().required()
+});
+
 const inviteTeamMemberSchema = Joi.object({
-	name: Joi.string().required(),
-	email: Joi.string().email().required(),
-	password: Joi.string().required()
+	email: Joi.string().email().required()
 });
 
 module.exports = {
+	createTeamSchema,
+	updateTeamSchema,
 	inviteTeamMemberSchema
 };

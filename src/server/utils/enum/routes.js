@@ -3,7 +3,8 @@ const BASE_PATH = {
 	TEAMS: '/api/teams',
 	PROJECTS: '/api/projects',
 	TODOS: '/api/todos',
-	COMMENTS: '/api/comments'
+	COMMENTS: '/api/comments',
+	NOTIFICATIONS: '/api/notifications'
 };
 
 const USERS_PATH = {
@@ -13,9 +14,11 @@ const USERS_PATH = {
 };
 
 const TEAMS_PATH = {
-	GET_TEAM: '/',
-	GET_TEAM_MEMBERS: '/members',
-	INVITE_TEAM_MEMBERS: '/members'
+	CREATE_TEAM: '/',
+	GET_TEAMS: '/',
+	UPDATE_TEAM: '/:teamId',
+	GET_TEAM_MEMBERS: '/members/:teamId',
+	INVITE_TEAM_MEMBERS: '/members/:teamId'
 };
 
 const PROJECTS_PATH = {
@@ -32,10 +35,21 @@ const TODOS_PATH = {
 	DELETE_TODO: '/:id'
 };
 
+const COMMENTS_PATH = {
+	CREATE_COMMENT: '/',
+	GET_COMMENTS: '/'
+};
+
+const NOTIFICATIONS_PATH = {
+	GET_NOTIFICATIONS: '/'
+};
+
 module.exports = {
 	BASE_PATH,
 	USERS_PATH,
 	TEAMS_PATH,
 	PROJECTS_PATH,
-	TODOS_PATH
+	TODOS_PATH,
+	COMMENTS_PATH,
+	NOTIFICATIONS_PATH
 };

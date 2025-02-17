@@ -1,13 +1,20 @@
 const db = require('../../data/config/connection');
+const TeamRepository = require('../../data/repositories/team.repository');
 
 const { HttpStatusCode, HttpStatusMessage } = require('../utils/enum/express');
+const ApplicationError = require('../utils/express/error');
 const ApiResponse = require('../utils/express/response');
 
 const createProject = async (req, res, next) => {
 	try {
-		const team = req.team;
+		const user = req.user;
 
-		const { name } = req.body;
+		const { name, teamId } = req.body;
+
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.NOT_FOUND);
+		}
 
 		const project = await db('projects')
 			.insert({
@@ -24,8 +31,18 @@ const createProject = async (req, res, next) => {
 
 const getProjects = async (req, res, next) => {
 	try {
-		const team = req.team;
+		const user = req.user;
 		const { offset, limit, page } = req.pagination;
+
+		const { teamId } = req.query;
+
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.NOT_FOUND);
+		}
+
+		console.log('team', team);
 
 		const projects = await db('projects').where({ team_id: team.id }).offset(offset).limit(limit).returning(['id', 'name']);
 
@@ -46,9 +63,15 @@ const getProjects = async (req, res, next) => {
 
 const updateProject = async (req, res, next) => {
 	try {
-		const team = req.team;
+		const user = req.user;
+
 		const { id } = req.params;
-		const { name } = req.body;
+		const { name, teamId } = req.body;
+
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.NOT_FOUND);
+		}
 
 		const project = await db('projects').where({ id, team_id: team.id }).update({ name }).returning(['id', 'name']);
 
@@ -60,9 +83,16 @@ const updateProject = async (req, res, next) => {
 
 const deleteProject = async (req, res, next) => {
 	try {
-		const team = req.team;
+		const user = req.user;
 
 		const { id } = req.params;
+
+		const { teamId } = req.query;
+
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.NOT_FOUND);
+		}
 
 		await db('projects').where({ id, team_id: team.id }).del();
 

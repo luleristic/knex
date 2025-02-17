@@ -28,12 +28,16 @@ const register = async (req, res, next) => {
 
 			const user = await trx('users')
 				.insert({
-					team_id: teamId,
 					name,
 					email,
 					password: hashedPassword
 				})
 				.returning(['id', 'name', 'email']);
+
+			await trx('users_teams').insert({
+				user_id: user[0].id,
+				team_id: teamId
+			});
 
 			ApiResponse.send(res, HttpStatusCode.CREATED, HttpStatusMessage.CREATED, user);
 		});

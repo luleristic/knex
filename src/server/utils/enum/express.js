@@ -27,6 +27,7 @@ const HttpStatusMessage = {
 	MISSING_FIELDS: 'Missing Fields',
 	USER_NOT_FOUND: 'User not found.',
 	INVALID_TOKEN: 'Invalid token.',
+	TEAM_NOT_FOUND: 'Team not found',
 	USER_EXISTS: 'User already exists.',
 	PROJECT_NOT_FOUND: 'Project not found.',
 	TODO_NOT_FOUND: 'Todo not found.'

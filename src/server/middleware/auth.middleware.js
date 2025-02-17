@@ -22,13 +22,7 @@ const authorize = async (req, _res, next) => {
 				throw new ApplicationError(HttpStatusCode.UNAUTHORIZED, HttpStatusMessage.INVALID_TOKEN);
 			}
 
-			const team = await db('teams').where({ id: user.team_id }).first();
-			if (!team) {
-				throw new ApplicationError(HttpStatusCode.UNAUTHORIZED, HttpStatusMessage.INVALID_TOKEN);
-			}
-
 			req.user = user;
-			req.team = team;
 
 			next();
 		}

@@ -6,7 +6,7 @@
 		"client": "cd client && yarn start",
 		"server": "cd src/server && nodemon server.js",
 		"dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
-		"test": "jest",
+		"test": "jest --runInBand",
 		"test:watch": "cd tests && jest --watch",
 		"start": "cd server && node server.js"
 	},
@@ -17,7 +17,8 @@
 			"dotenv/config"
 		],
 		"testEnvironment": "node",
-		"transform": {}
+		"transform": {},
+		"maxWorkers": 1
 	},
 	"dependencies": {
 		"bcrypt": "^5.1.1",

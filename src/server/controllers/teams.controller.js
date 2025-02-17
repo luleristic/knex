@@ -1,19 +1,63 @@
 const db = require('../../data/config/connection');
-const bcrypt = require('bcrypt');
 
 const ApplicationError = require('../utils/express/error');
 const { HttpStatusCode, HttpStatusMessage } = require('../utils/enum/express');
 const ApiResponse = require('../utils/express/response');
+const TeamRepository = require('../../data/repositories/team.repository');
+const UserRepository = require('../../data/repositories/user.repository');
 
-const getTeam = async (req, res, next) => {
+const createTeam = async (req, res, next) => {
 	try {
-		const team = req.team;
+		const user = req.user;
 
-		const payload = {
-			name: team.name
-		};
+		const { name } = req.body;
 
-		ApiResponse.send(res, HttpStatusCode.OK, HttpStatusMessage.OK, payload);
+		await db.transaction(async trx => {
+			const team = await trx('teams').insert({ name }).returning('id');
+
+			const teamId = team[0].id;
+
+			await trx('users_teams').insert({
+				user_id: user.id,
+				team_id: teamId
+			});
+
+			ApiResponse.send(res, HttpStatusCode.CREATED, HttpStatusMessage.CREATED);
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+const getTeams = async (req, res, next) => {
+	try {
+		const user = req.user;
+
+		const teams = await TeamRepository.getUserTeams(user.id);
+
+		ApiResponse.send(res, HttpStatusCode.OK, HttpStatusMessage.OK, teams);
+	} catch (error) {
+		next(error);
+	}
+};
+
+const updateTeam = async (req, res, next) => {
+	try {
+		const user = req.user;
+
+		const { teamId } = req.params;
+
+		const { name } = req.body;
+
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.NOT_FOUND);
+		}
+
+		await db('teams').where({ id: team.id }).update({ name });
+
+		ApiResponse.send(res, HttpStatusCode.OK, HttpStatusMessage.OK);
 	} catch (error) {
 		next(error);
 	}
@@ -21,12 +65,21 @@ const getTeam = async (req, res, next) => {
 
 const getTeamMembers = async (req, res, next) => {
 	try {
-		const team = req.team;
+		const user = req.user;
+
 		const { offset, limit, page } = req.pagination;
 
-		const users = await db('users').where({ team_id: team.id }).offset(offset).limit(limit).returning('id name email');
+		const { teamId } = req.params;
 
-		const total = await db('users').where({ team_id: team.id }).count('id');
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.NOT_FOUND);
+		}
+
+		const users = await TeamRepository.getTeamMembers(team.id, offset, limit);
+
+		const total = await db('users_teams').where({ team_id: team.id }).count('user_id');
 
 		const payload = {
 			limit,
@@ -43,36 +96,37 @@ const getTeamMembers = async (req, res, next) => {
 
 const inviteTeamMember = async (req, res, next) => {
 	try {
-		const team = req.team;
-		const { email, name, password } = req.body;
+		const user = req.user;
+		const { teamId } = req.params;
+		const { email } = req.body;
 
-		const userExists = await db('users').where({ email }).first();
-		if (userExists) {
-			throw new ApplicationError(HttpStatusCode.CONFLICT, HttpStatusMessage.USER_EXISTS);
+		const team = await TeamRepository.getTeamById(teamId, user.id);
+
+		if (!team) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.TEAM_NOT_FOUND);
 		}
 
-		const salt = await bcrypt.genSalt(10);
-		const hashedPassword = await bcrypt.hash(password, salt);
+		const member = await UserRepository.getUserByField('email', email);
 
-		const user = await db('users')
-			.insert({
-				team_id: team.id,
-				name,
-				email,
-				password: hashedPassword
-			})
-			.returning(['id', 'name', 'email']);
+		if (!member) {
+			throw new ApplicationError(HttpStatusCode.NOT_FOUND, HttpStatusMessage.USER_NOT_FOUND);
+		}
 
-		console.log(user);
+		await db('users_teams').insert({
+			user_id: member.id,
+			team_id: team.id
+		});
 
-		ApiResponse.send(res, HttpStatusCode.CREATED, HttpStatusMessage.CREATED, user);
+		ApiResponse.send(res, HttpStatusCode.CREATED, HttpStatusMessage.CREATED);
 	} catch (error) {
 		next(error);
 	}
 };
 
 module.exports = {
-	getTeam,
+	createTeam,
+	getTeams,
+	updateTeam,
 	getTeamMembers,
 	inviteTeamMember
 };

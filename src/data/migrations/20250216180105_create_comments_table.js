@@ -9,6 +9,7 @@ exports.up = function (knex) {
 		table.integer('user_id').unsigned().references('id').inTable('users').onDelete('SET NULL');
 		table.integer('todo_id').unsigned().references('id').inTable('todos').onDelete('CASCADE');
 		table.integer('project_id').unsigned().references('id').inTable('projects').onDelete('CASCADE');
+		table.integer('team_id').unsigned().references('id').inTable('teams').onDelete('CASCADE');
 		table.timestamp('created_at').defaultTo(knex.fn.now());
 	});
 };
